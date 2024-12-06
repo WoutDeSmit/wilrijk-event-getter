@@ -5,9 +5,9 @@ from bs4 import BeautifulSoup
 from selenium import webdriver
 from tqdm import tqdm
 
-from calendar_adder import create_event, get_events
+from calendar_adder import CalendarAdder
 
-# https://googlechromelabs.github.io/chrome-for-testing/
+
 targets = [{"link": "https://www.facebook.com/INGENIUM.FTI/events", "club": "Ingenium"},
            {"link": "https://www.facebook.com/Fabiantisgroot/events", "club": "Fabiant"},
            {"link": "https://www.facebook.com/Campinaria/events", "club": "Campinaria"},
@@ -70,24 +70,25 @@ for target in tqdm(targets):
 
     driver.close()
 
-name_list = []
+unique_event_list = []
 for event in event_list:
-    if {"name": event["name"], "date": event["date"], 'is_today': event['is_today']} not in name_list:
-        name_list.append({"name": event["name"], "date": event["date"], 'is_today': event['is_today']})
+    if {"name": event["name"], "date": event["date"], 'is_today': event['is_today']} not in unique_event_list:
+        unique_event_list.append({"name": event["name"], "date": event["date"], 'is_today': event['is_today']})
 
 event_list_condensed = []
-for name in name_list:
+for unique_event in unique_event_list:
     club_list = []
     for event in event_list:
-        if event['name'] == name["name"]:
+        if event['name'] == unique_event["name"]:
             club_list.append(event["club"])
-    event_list_condensed.append({"club": club_list, "name": name["name"], "date": name["date"], 'is_today': name['is_today']})
+    event_list_condensed.append({"club": club_list, "name": unique_event["name"], "date": unique_event["date"], 'is_today': unique_event['is_today']})
 event_list_condensed = sorted(event_list_condensed, key=lambda d: d['date'])
 
 # Specify the Column Names while initializing the Table
 myTable = PrettyTable(["Clubs", "Event naam", "Datum"])
 
-events_in_calendar = get_events()
+calendar_service = CalendarAdder()
+events_in_calendar = calendar_service.get_events()
 summary_in_calendar = []
 for event in events_in_calendar:
     summary_in_calendar.append(event['summary'])
@@ -102,6 +103,6 @@ for event in event_list_condensed:
             club_str += club + ", "
         club_str = club_str[:-2]
         description = f"{event['name']} van {club_str}"
-        create_event(event['date'], event['date'] + datetime.timedelta(hours=5), event['name'], description)
+        calendar_service.create_event(event['date'], event['date'] + datetime.timedelta(hours=5), event['name'], description)
 
 print(myTable)

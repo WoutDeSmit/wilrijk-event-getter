@@ -79,7 +79,7 @@ class CalendarAdder:
             events = events_result.get("items", [])
 
             if not events:
-                print("No upcoming events found.")
+                print("No events found.")
                 return []
 
             return events

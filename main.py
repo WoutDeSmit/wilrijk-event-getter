@@ -85,8 +85,8 @@ for target in tqdm(targets):
 # events can be hosted by multiple clubs, so we check for duplicates
 unique_event_list = []
 for event in event_list:
-    if {"name": event["name"], "date": event["date"], 'is_today': event['is_today']} not in unique_event_list:
-        unique_event_list.append({"name": event["name"], "date": event["date"], 'is_today': event['is_today']})
+    if {"name": event["name"], "date": event["date"], 'is_happening': event['is_happening']} not in unique_event_list:
+        unique_event_list.append({"name": event["name"], "date": event["date"], 'is_happening': event['is_happening']})
 
 # duplicated events get added once but each club that hosts it gets added in a clubs list
 event_list_condensed = []
@@ -95,14 +95,14 @@ for unique_event in unique_event_list:
     for event in event_list:
         if event['name'] == unique_event["name"]:
             club_list.append(event["club"])
-    event_list_condensed.append({"club": club_list, "name": unique_event["name"], "date": unique_event["date"], 'is_today': unique_event['is_today']})
+    event_list_condensed.append({"club": club_list, "name": unique_event["name"], "date": unique_event["date"], 'is_happening': unique_event['is_happening']})
 event_list_condensed = sorted(event_list_condensed, key=lambda d: d['date'])
 
 # a nice table gets made to display all the events, this can be deleted to
 # Specify the Column Names while initializing the Table
 myTable = PrettyTable(["Clubs", "Event naam", "Datum"])
 
-# check which events are already in the calendar so they don't get added multiple times
+# check which events are already in the calendar, so they don't get added multiple times
 calendar_service = CalendarAdder()
 events_in_calendar = calendar_service.get_events()
 summary_in_calendar = []

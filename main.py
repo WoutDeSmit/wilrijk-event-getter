@@ -124,6 +124,6 @@ for event in event_list_condensed:
             club_str += club + ", "
         club_str = club_str[:-2]
         description = f"{event['name']} van {club_str}. \nLink: {event['link']}"
-        calendar_service.create_event(event['date'], event['date'] + datetime.timedelta(hours=5), event['name'], description)
+        calendar_service.create_event(event['date'], event['date'] + datetime.timedelta(hours=1), event['name'], description)
 
 print(myTable)

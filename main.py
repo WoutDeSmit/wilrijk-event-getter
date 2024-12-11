@@ -36,6 +36,17 @@ for target in tqdm(targets):
     resp = driver.page_source
     soup = BeautifulSoup(resp, 'html.parser')
 
+    # check if there are any upcoming events, otherwise the code will attempt to get past events.
+    event_pages = soup.find_all("div", {"class": "html-div xdj266r x11i5rnm xat24cr x1mh8g0r xexx8yu x18d9i69 x6s0dn4 x9f619 x78zum5 x2lah0s x1hshjfz x1n2onr6 xng8ra x1pi30zi x1swvt13"})
+    contains_upcoming = False
+    for page in event_pages:
+        page_text = page.text.strip()
+        if "Gepland" in page_text:
+            contains_upcoming = True
+            break
+    if not contains_upcoming:
+        continue
+
     # get all the divs that contain the data for a single event
     events_div = soup.find_all("div", {
         "class": "x6s0dn4 x1lq5wgf xgqcy7u x30kzoy x9jhf4c x1olyfxc x9f619 x78zum5 x1e56ztr xyamay9 x1pi30zi x1l90r2v x1swvt13 x1gefphp"})

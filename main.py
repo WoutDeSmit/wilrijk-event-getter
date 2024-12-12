@@ -73,26 +73,34 @@ for target in tqdm(targets):
             date = str(datetime.datetime.now())
             date = date[0:19]
             date = datetime.datetime.strptime(date, '%Y-%m-%d %H:%M:%S')
+            end_date = date + datetime.timedelta(hours=1)
             event['is_happening'] = True
         elif "-" in date:
             date_cut = date[4:16]
+            date_end = date[18:]
             date_cut = date_cut.replace("mrt", "mar").replace("mei", "may").replace("okt", "oct").strip()
+            date_end = date_end.replace("mrt", "mar").replace("mei", "may").replace("okt", "oct").strip()
             date_formatted = datetime.datetime.strptime(date_cut, '%d %b. %Y')
-            date = date_formatted
+            end_date_formatted = datetime.datetime.strptime(date_end, '%d %b. %Y')
+            date = date_formatted + datetime.timedelta(hours=12)
+            end_date = end_date_formatted + datetime.timedelta(hours=12)
             event['is_happening'] = False
         elif date[11:16].strip().isdigit():
             date_cut = date[4:25].strip()
             date_cut = date_cut.replace("mrt", "mar").replace("mei", "may").replace("okt", "oct").strip()
             date_formatted = datetime.datetime.strptime(date_cut, '%d %b. %Y om %H:%M')
             date = date_formatted
+            end_date = date + datetime.timedelta(hours=1)
             event['is_happening'] = False
         else:
             date_cut = date[4:20].strip() + ":" + str(datetime.datetime.now().year)
             date_cut = date_cut.replace("mrt", "mar").replace("mei", "may").replace("okt", "oct").strip()
             date_formatted = datetime.datetime.strptime(date_cut, '%d %b. om %H:%M:%Y')
             date = date_formatted
+            end_date = date + datetime.timedelta(hours=1)
             event['is_happening'] = False
         event['date'] = date
+        event['end_date'] = end_date
         event_list.append(event)
 
     driver.close()
@@ -100,8 +108,8 @@ for target in tqdm(targets):
 # events can be hosted by multiple clubs, so we check for duplicates
 unique_event_list = []
 for event in event_list:
-    if {"name": event["name"], "date": event["date"], 'is_happening': event['is_happening'], 'link': event['link']} not in unique_event_list:
-        unique_event_list.append({"name": event["name"], "date": event["date"], 'is_happening': event['is_happening'], 'link': event['link']})
+    if {"name": event["name"], "date": event["date"], "end_date": event["end_date"], 'is_happening': event['is_happening'], 'link': event['link']} not in unique_event_list:
+        unique_event_list.append({"name": event["name"], "date": event["date"], "end_date": event["end_date"], 'is_happening': event['is_happening'], 'link': event['link']})
 
 # duplicated events get added once but each club that hosts it gets added in a clubs list
 event_list_condensed = []
@@ -110,7 +118,7 @@ for unique_event in unique_event_list:
     for event in event_list:
         if event['name'] == unique_event["name"]:
             club_list.append(event["club"])
-    event_list_condensed.append({"club": club_list, "name": unique_event["name"], "date": unique_event["date"], 'is_happening': unique_event['is_happening'], 'link': unique_event['link']})
+    event_list_condensed.append({"club": club_list, "name": unique_event["name"], "date": unique_event["date"], "end_date": unique_event["end_date"], 'is_happening': unique_event['is_happening'], 'link': unique_event['link']})
 event_list_condensed = sorted(event_list_condensed, key=lambda d: d['date'])
 
 # a nice table gets made to display all the events, this can be deleted to
@@ -135,6 +143,6 @@ for event in event_list_condensed:
             club_str += club + ", "
         club_str = club_str[:-2]
         description = f"{event['name']} van {club_str}. \nLink: {event['link']}"
-        calendar_service.create_event(event['date'], event['date'] + datetime.timedelta(hours=1), event['name'], description)
+        calendar_service.create_event(event['date'], event['end_date'], event['name'], description)
 
 print(myTable)

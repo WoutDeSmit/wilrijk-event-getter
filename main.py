@@ -87,10 +87,11 @@ for target in tqdm(targets):
             event['is_happening'] = False
         elif "-" in date and not date[12:16].strip().isdigit():
             date_cut = date[4:11] + " " + str(datetime.datetime.now().year)
-            date_end = date[14:] + " " + str(datetime.datetime.now().year)
+            date_end = date[13:] + " " + str(datetime.datetime.now().year)
             date_cut = date_cut.replace("mrt", "mar").replace("mei", "may").replace("okt", "oct").strip()
             date_end = date_end.replace("mrt", "mar").replace("mei", "may").replace("okt", "oct").strip()
             date_formatted = datetime.datetime.strptime(date_cut, '%d %b. %Y')
+            print(date_end)
             end_date_formatted = datetime.datetime.strptime(date_end, '%d %b. %Y')
             date = date_formatted + datetime.timedelta(hours=12)
             end_date = end_date_formatted + datetime.timedelta(hours=12)

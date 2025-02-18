@@ -37,7 +37,7 @@ for target in tqdm(targets):
     soup = BeautifulSoup(resp, 'html.parser')
 
     # check if there are any upcoming events and skip loop if not, otherwise the code will attempt to get past events.
-    event_pages = soup.find_all("div", {"class": "html-div xdj266r x11i5rnm xat24cr x1mh8g0r xexx8yu x18d9i69 x6s0dn4 x9f619 x78zum5 x2lah0s x1hshjfz x1n2onr6 xng8ra x1pi30zi x1swvt13"})
+    event_pages = soup.find_all("div", {"class": "html-div xdj266r x11i5rnm xat24cr x1mh8g0r xexx8yu x18d9i69 x6s0dn4 x9f619 x2lah0s x1hshjfz x1n2onr6 x3nfvp2 xrbpyxo x16dsc37 xng8ra x1swvt13 x1pi30zi"})
     contains_upcoming = False
     for page in event_pages:
         page_text = page.text.strip()
@@ -75,9 +75,19 @@ for target in tqdm(targets):
             date = datetime.datetime.strptime(date, '%Y-%m-%d %H:%M:%S')
             end_date = date + datetime.timedelta(hours=1)
             event['is_happening'] = True
-        elif "-" in date:
+        elif "-" in date and date[12:16].strip().isdigit():
             date_cut = date[4:16]
             date_end = date[18:]
+            date_cut = date_cut.replace("mrt", "mar").replace("mei", "may").replace("okt", "oct").strip()
+            date_end = date_end.replace("mrt", "mar").replace("mei", "may").replace("okt", "oct").strip()
+            date_formatted = datetime.datetime.strptime(date_cut, '%d %b. %Y')
+            end_date_formatted = datetime.datetime.strptime(date_end, '%d %b. %Y')
+            date = date_formatted + datetime.timedelta(hours=12)
+            end_date = end_date_formatted + datetime.timedelta(hours=12)
+            event['is_happening'] = False
+        elif "-" in date and not date[12:16].strip().isdigit():
+            date_cut = date[4:11] + " " + str(datetime.datetime.now().year)
+            date_end = date[14:] + " " + str(datetime.datetime.now().year)
             date_cut = date_cut.replace("mrt", "mar").replace("mei", "may").replace("okt", "oct").strip()
             date_end = date_end.replace("mrt", "mar").replace("mei", "may").replace("okt", "oct").strip()
             date_formatted = datetime.datetime.strptime(date_cut, '%d %b. %Y')

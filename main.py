@@ -75,41 +75,26 @@ for target in tqdm(targets):
             date = datetime.datetime.strptime(date, '%Y-%m-%d %H:%M:%S')
             end_date = date + datetime.timedelta(hours=1)
             event['is_happening'] = True
-        elif "-" in date and date[12:16].strip().isdigit():
-            date_cut = date[4:16]
-            date_end = date[18:]
-            date_cut = date_cut.replace("mrt", "mar").replace("mei", "may").replace("okt", "oct").strip()
-            date_end = date_end.replace("mrt", "mar").replace("mei", "may").replace("okt", "oct").strip()
-            date_formatted = datetime.datetime.strptime(date_cut, '%d %b. %Y')
-            end_date_formatted = datetime.datetime.strptime(date_end, '%d %b. %Y')
-            date = date_formatted + datetime.timedelta(hours=12)
-            end_date = end_date_formatted + datetime.timedelta(hours=12)
-            event['is_happening'] = False
-        elif "-" in date and not date[12:16].strip().isdigit():
-            date_cut = date[4:11] + " " + str(datetime.datetime.now().year)
-            date_end = date[13:] + " " + str(datetime.datetime.now().year)
-            date_cut = date_cut.replace("mrt", "mar").replace("mei", "may").replace("okt", "oct").strip()
-            date_end = date_end.replace("mrt", "mar").replace("mei", "may").replace("okt", "oct").strip()
-            date_formatted = datetime.datetime.strptime(date_cut, '%d %b. %Y')
-            print(date_end)
-            end_date_formatted = datetime.datetime.strptime(date_end, '%d %b. %Y')
-            date = date_formatted + datetime.timedelta(hours=12)
-            end_date = end_date_formatted + datetime.timedelta(hours=12)
-            event['is_happening'] = False
-        elif date[11:16].strip().isdigit():
-            date_cut = date[4:25].strip()
-            date_cut = date_cut.replace("mrt", "mar").replace("mei", "may").replace("okt", "oct").strip()
-            date_formatted = datetime.datetime.strptime(date_cut, '%d %b. %Y om %H:%M')
-            date = date_formatted
-            end_date = date + datetime.timedelta(hours=1)
-            event['is_happening'] = False
         else:
-            date_cut = date[4:20].strip() + ":" + str(datetime.datetime.now().year)
-            date_cut = date_cut.replace("mrt", "mar").replace("mei", "may").replace("okt", "oct").strip()
-            date_formatted = datetime.datetime.strptime(date_cut, '%d %b. om %H:%M:%Y')
-            date = date_formatted
-            end_date = date + datetime.timedelta(hours=1)
+            date = date.replace("mrt", "mar").replace("mei", "may").replace("okt", "oct")  # translate dates into english
             event['is_happening'] = False
+            if int(date[4:6].strip()) < 10: date = date[:4] + "0" + date[4:]  # day of (start) date is single digit, so put 0 before it.
+            is_single_day = "-" not in date
+            if is_single_day:
+                if not date[12:16].isdigit(): date = date[:11] + " " + str(datetime.datetime.now().year) + date[11:]  # date does not have year, so add it.
+                date = date[4:25].strip()  # cut off day of week
+                date_formatted = datetime.datetime.strptime(date, '%d %b. %Y om %H:%M')
+                date = date_formatted
+                end_date = date + datetime.timedelta(hours=1)
+            else:
+                if not date[12:16].isdigit(): date = date[:11] + " " + str(datetime.datetime.now().year) + date[11:]  # start date does not have year, so add it.
+                if int(date[19:21].strip()) < 10: date = date[:19] + "0" + date[19:]  # day of end date is single digit, so put 0 before it.
+                if len(date) == 26: date = date + " " + str(datetime.datetime.now().year)
+                date = date[4:]  # cut off day of week
+                date_formatted = datetime.datetime.strptime(date[:12], '%d %b. %Y')
+                end_date_formatted = datetime.datetime.strptime(date[15:], '%d %b. %Y')
+                date = date_formatted + datetime.timedelta(hours=12)
+                end_date = end_date_formatted + datetime.timedelta(hours=12)
         event['date'] = date
         event['end_date'] = end_date
         event_list.append(event)

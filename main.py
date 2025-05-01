@@ -58,6 +58,8 @@ for target in tqdm(targets):
         # get the name of the event from this specific span
         name = events_div[i].find_all("span", {
             "html-span xdj266r x11i5rnm xat24cr x1mh8g0r xexx8yu x4uap5 x18d9i69 xkhd6sd x1hl2dhg x16tdsg8 x1vvkbs"})
+        if len(name) == 0:
+            break
         name = name[0].text.strip()
         event['name'] = name
         # get the date of the event from this specific span
@@ -76,7 +78,7 @@ for target in tqdm(targets):
             end_date = date + datetime.timedelta(hours=1)
             event['is_happening'] = True
         else:
-            date = date.replace("mrt", "mar").replace("mei", "may").replace("okt", "oct")  # translate dates into english
+            date = date.replace("mrt", "mar").replace("mei", "may.").replace("okt", "oct")  # translate dates into english
             event['is_happening'] = False
             if int(date[4:6].strip()) < 10: date = date[:4] + "0" + date[4:]  # day of (start) date is single digit, so put 0 before it.
             is_single_day = "-" not in date
